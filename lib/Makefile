@@ -19,3 +19,5 @@ endif
 	$(RM) helpers.o
 	$(RM) libhelpers.dll
 	$(RM) libhelpers.so
+	$(RM) a.exe
+	$(RM) helpers.h.gch
