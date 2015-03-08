@@ -49,10 +49,10 @@ int main() {
 	char buf[3];
 	int r = read_(STDIN_FILENO, buf, 3);
 	if(r == -1)
-		perror(strerror(errno));
+		printf("%d",strerror(errno));
 
 	int w = write_(STDOUT_FILENO, buf, 3);
 	if(w == -1)
-		perror(strerror(errno));
+		printf("%d",strerror(errno));
 	return 0;
 }
