@@ -1,5 +1,4 @@
-all:
-	gcc -std=c99 helpers.h helpers.c
+all: lib
 
 lib:
 ifeq ($(OS), Windows_NT)
@@ -11,9 +10,12 @@ else ifeq ($(shell uname -s), Linux)
 endif
 
 clean:
+ifeq ($(OS), Windows_NT)
 	del helpers.o
 	del libhelpers.dll
-	del libhelpers.so
-	del a.exe
-	del a.out
 	del helpers.h.gch
+else ifeq ($(shell uname -s), Linux)
+	$(RM) helpers.o
+	$(RM) libhelpers.so
+	$(RM) helpers.h.gch
+endif

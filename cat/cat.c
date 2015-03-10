@@ -1,7 +1,6 @@
-#include "../lib/helpers.h"
-
 #include <errno.h>
 #include <stdio.h>
+#include <helpers.h>
 
 int main() {
 	char buffer[BUFSIZ];
