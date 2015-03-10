@@ -4,7 +4,7 @@ ifeq ($(OS), Windows_NT)
 	gcc -o cat.exe -L../lib -lhelpers cat.o
 else ifeq ($(shell uname -s), Linux)
 	gcc -o cat.o -fPIC -c -Wall -I../lib cat.c
-	gcc -o cat -L../lib -lhelpers cat.o
+	gcc -o cat -L../lib -Wl,-rpath=../lib -lhelpers cat.o
 endif
 
 clean:

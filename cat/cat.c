@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <helpers.h>
+#include <string.h>
 
 int main() {
 	char buffer[BUFSIZ];
