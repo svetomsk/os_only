@@ -1,5 +1,5 @@
 all:
-	gcc helpers.h helpers.c
+	gcc -std=c99 helpers.h helpers.c
 
 lib:
 ifeq ($(OS), Windows_NT)

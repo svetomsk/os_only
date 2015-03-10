@@ -9,7 +9,7 @@ ssize_t read_(int fd, void *buf, size_t count) {
 		count -= cur_read;
 	}
 
-	if(!feof(STDIN_FILENO) && count > 0) {
+	if(cur_read == -1) {
 		return -1;
 	}
 
@@ -30,12 +30,4 @@ ssize_t write_(int fd, void *buf, size_t count) {
 	}
 
 	return result;
-}
-
-int main() {
-	char buf[5];
-	ssize_t r = read_(STDIN_FILENO, buf, 5);
-	printf("%d\n", r);
-	ssize_t w = write_(STDOUT_FILENO, buf, r);
-	return 0;
 }
