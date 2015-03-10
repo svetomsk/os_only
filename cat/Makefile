@@ -1,10 +1,11 @@
-all:	
+all: cat
+
+cat:
 ifeq ($(OS), Windows_NT)
 	gcc -o cat.o -c -Wall -I../lib cat.c
 	gcc -o cat.exe -L../lib -lhelpers cat.o
 else ifeq ($(shell uname -s), Linux)
-	gcc -o cat.o -fPIC -c -Wall -I../lib cat.c
-	gcc -o cat -L../lib -Wl,-rpath=../lib -lhelpers cat.o
+	gcc -std=c99 -I../lib -Wl,-rpath=../lib -L../lib cat.c -o cat -lhelpers
 endif
 
 clean:
