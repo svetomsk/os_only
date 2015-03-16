@@ -1,4 +1,5 @@
 #include "helpers.h"
+#include "stdio.h"
 
 ssize_t read_(int fd, void *buf, size_t count) {
 	size_t result = 0;
@@ -7,6 +8,26 @@ ssize_t read_(int fd, void *buf, size_t count) {
 	while(count > 0 && (cur_read = read(fd, buf + result, count)) > 0) {
 		result += cur_read;
 		count -= cur_read;
+	}
+
+	if(cur_read == -1) {
+		return -1;
+	}
+
+	return result;
+}
+
+ssize_t read_until(int fd, void *buf, size_t count, char delimiter) {
+	ssize_t cur_read;
+	size_t result = 0;
+
+	while(count > 0 && (cur_read = read(fd, buf + result, 1)) > 0) {
+		char c = ((char *) buf)[result];
+		if(c == delimiter) {
+			break;
+		}
+		result++;
+		count--;
 	}
 
 	if(cur_read == -1) {
@@ -30,4 +51,11 @@ ssize_t write_(int fd, void *buf, size_t count) {
 	}
 
 	return result;
+}
+
+int main() {
+	char buf[20];
+	read_until(STDIN_FILENO, buf, 10, 'c');
+	write_(STDOUT_FILENO, buf, 10);
+	return 0;
 }
