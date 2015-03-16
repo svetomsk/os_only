@@ -52,10 +52,3 @@ ssize_t write_(int fd, void *buf, size_t count) {
 
 	return result;
 }
-
-int main() {
-	char buf[20];
-	read_until(STDIN_FILENO, buf, 10, 'c');
-	write_(STDOUT_FILENO, buf, 10);
-	return 0;
-}
