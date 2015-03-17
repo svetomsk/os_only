@@ -1,4 +1,4 @@
-all: lib/lib cat/cat
+all: lib/lib cat/cat revwords/revwords
 
 lib/lib:
 	cd lib && make
@@ -6,6 +6,10 @@ lib/lib:
 cat/cat:
 	cd cat && make
 
+revwords/revwords:
+	cd revwords && make
+
 clean:
 	cd lib && make clean
 	cd cat && make clean
+	cd revwords && make clean

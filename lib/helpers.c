@@ -1,5 +1,4 @@
 #include "helpers.h"
-#include "stdio.h"
 
 ssize_t read_(int fd, void *buf, size_t count) {
 	size_t result = 0;
