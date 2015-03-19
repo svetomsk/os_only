@@ -1,4 +1,9 @@
 #include "helpers.h"
+#include <stdio.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <errno.h>
 
 ssize_t read_(int fd, void *buf, size_t count) {
 	size_t result = 0;
@@ -50,4 +55,20 @@ ssize_t write_(int fd, void *buf, size_t count) {
 	}
 
 	return result;
+}
+
+int spawn(const char * file, char * const argv []) {
+	pid_t pid;
+	int exit_status;
+	switch(pid = fork()) {
+		case -1: return -1;
+		case 0: {
+			int result = execvp(file, argv);
+			exit(result);
+		}
+		default: {
+			wait(&exit_status);
+		}
+	}
+	return WEXITSTATUS(exit_status);
 }
