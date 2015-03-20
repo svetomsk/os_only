@@ -56,14 +56,16 @@ int spawn(const char * file, char * const argv []) {
 	pid_t pid;
 	int exit_status;
 	switch(pid = fork()) {
-		case -1: return -1;
 		case 0: {
 			int result = execvp(file, argv);
-			_exit(result);
+			return -1;
 		}
 		default: {
-			wait(&exit_status);
+			waitpid(pid, &exit_status, 0);
+			if(WIFEXITED(exit_status)) {
+				return WEXITSTATUS(exit_status);
+			} else
+				return -1;
 		}
 	}
-	return WEXITSTATUS(exit_status);
 }
