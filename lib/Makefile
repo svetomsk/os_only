@@ -20,4 +20,6 @@ else ifeq ($(shell uname -s), Linux)
 	$(RM) libhelpers.so
 	$(RM) helpers.h.gch
 	$(RM) bufio.o
+	$(RM) a.out
+	$(RM) bufio.h.gch
 endif

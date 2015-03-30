@@ -5,3 +5,6 @@
 *.so
 *.dll
 cat
+revwords
+out
+filter

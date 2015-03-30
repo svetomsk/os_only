@@ -1,6 +1,7 @@
 #ifndef BUFIO_H
 #define BUFIO_H
 #include <stdlib.h>
+#include <errno.h>
 
 #define fd_t int
 
