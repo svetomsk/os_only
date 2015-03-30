@@ -34,6 +34,22 @@ ssize_t buf_fill(fd_t fd, struct buf_t *buf, size_t required) {
 		printf("Error happened: %i\n", errno);
 		return -1;
 	}
+	buf->size = total_result;
+	return total_result;
+}
+
+ssize_t buf_flush(fd_t fd, struct buf_t *buf, size_t required) {
+	ssize_t cur_written;
+	size_t total_result = 0;
+	while((cur_written = write_(fd, buf->buf, buf->size)) > 0) {
+		total_result += cur_written;
+		buf->size -= cur_written;
+	}
+
+	if(cur_written == -1) {
+		printf("Error happened: %i\n", errno);
+		return -1;
+	}
 
 	return total_result;
 }
