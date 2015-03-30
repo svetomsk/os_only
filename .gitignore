@@ -5,3 +5,7 @@
 *.so
 *.dll
 cat
+out
+filter
+lenwords
+revwords
