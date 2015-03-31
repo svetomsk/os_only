@@ -1,12 +1,13 @@
 all: lib
 
-lib:
+lib: clean
 ifeq ($(OS), Windows_NT)
 	gcc -c helpers.h helpers.c bufio.h bufio.c
 	gcc -shared -o libhelpers.dll helpers.o bufio.o
 else ifeq ($(shell uname -s), Linux)
 	gcc -fPIC -c helpers.h helpers.c bufio.h bufio.c
-	gcc -shared -o libhelpers.so helpers.o bufio.o
+	gcc -shared -o libhelpers.so helpers.o
+	gcc -shared -o libbufio.so bufio.o
 endif
 
 clean:

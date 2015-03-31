@@ -2,6 +2,7 @@
 #define BUFIO_H
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 
 #define fd_t int
 
