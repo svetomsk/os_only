@@ -1,6 +1,6 @@
 all: bufcat
 
-bufcat:
+bufcat: clean
 ifeq ($(OS), Windows_NT)
 	gcc -o bufcat.o -c -Wall -I../lib bufcat.c
 	gcc -o bufcat.exe -L../lib -lbufio bufcat.o
