@@ -1,7 +1,7 @@
 all: clean lib
 
 lib:
-	gcc -fPIC -c helpers.h helpers.c bufio.h bufio.c
+	gcc -std=c99 -fPIC -c helpers.h helpers.c bufio.h bufio.c
 	gcc -shared -o libhelpers.so helpers.o
 	gcc -shared -o libbufio.so bufio.o helpers.o
 clean:

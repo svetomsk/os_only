@@ -8,7 +8,6 @@ ssize_t read_(int fd, void *buf, size_t count) {
 		result += cur_read;
 		count -= cur_read;
 	}
-
 	if(cur_read == -1) {
 		return -1;
 	}
@@ -53,7 +52,7 @@ ssize_t write_(int fd, void *buf, size_t count) {
 }
 
 int spawn(const char * file, char * const argv []) {
-	pid_t pid;
+    int pid;
 	int exit_status;
 	switch(pid = fork()) {
 		case 0: {

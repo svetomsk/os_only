@@ -53,3 +53,26 @@ ssize_t buf_flush(fd_t fd, struct buf_t *buf, size_t required) {
 
 	return total_result;
 }
+
+ssize_t buf_getline(fd_t fd, struct buf_t* buf, char* dest) {
+	size_t cur_pos = 0;
+	for(size_t i = 0; i < buf->size; i++, cur_pos++) {
+		if(buf->buf[i] == '\n')
+			return i;
+		dest[i] = buf->buf[i];
+	}
+	buf_free(buf);
+	buf = buf_new(4096);
+
+	ssize_t read;
+	while((read = buf_fill(fd, buf, 1)) > 0) {
+		for(size_t i = 0; i < buf->size; i++, cur_pos++) {
+			if(buf->buf[i] == '\n') {
+				return cur_pos;
+			}				
+			dest[cur_pos] = buf->buf[i];
+		}			
+		buf_free(buf);
+		buf = buf_new(4096);
+	}
+}

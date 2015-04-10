@@ -1,4 +1,6 @@
 #include <helpers.h>
+#include <errno.h>
+#include <stdio.h>
 
 void prepare_buffer(char * buf) {
 	int i = 0;
@@ -25,7 +27,10 @@ int main(int argc, char ** argv) {
 			buf[cur_read] = '\n';
 			write(STDOUT_FILENO, buf, cur_read + 1);
 		}
+	}
 
+	if(cur_read == -1) {
+		printf("Error happend: %i\n", errno);
 	}
 
 	return 0;
