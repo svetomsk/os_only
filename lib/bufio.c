@@ -72,6 +72,9 @@ ssize_t buf_getline(fd_t fd, struct buf_t* buf, char* dest) {
 			}				
 			dest[cur_pos] = buf->buf[i];
 		}			
+		if(cur_pos > 4095) {
+			exit(1);
+		}
 		buf_free(buf);
 		buf = buf_new(4096);
 	}
