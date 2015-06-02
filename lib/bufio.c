@@ -31,7 +31,7 @@ ssize_t buf_fill(fd_t fd, struct buf_t *buf, size_t required) {
 	}
 
 	if(cur_read == -1) {
-		printf("Error happened: %i\n", errno);
+		printf("Error happened2: %i\n", errno);
 		return -1;
 	}
 	buf->size = total_result;
@@ -47,7 +47,7 @@ ssize_t buf_flush(fd_t fd, struct buf_t *buf, size_t required) {
 	}
 
 	if(cur_written == -1) {
-		printf("Error happened: %i\n", errno);
+		printf("Error happened1: %i\n", errno);
 		return -1;
 	}
 
@@ -66,7 +66,7 @@ ssize_t buf_getline(fd_t fd, struct buf_t* buf, char* dest) {
 	buf_free(buf);
 	buf = buf_new(4096);
 
-	ssize_t read;
+	ssize_t read = 0;
 	while((read = buf_fill(fd, buf, 1)) > 0) {
 		for(size_t i = 0; i < buf->size; i++, cur_pos++) {
 			if(buf->buf[i] == '\n') {
@@ -80,6 +80,9 @@ ssize_t buf_getline(fd_t fd, struct buf_t* buf, char* dest) {
 		}
 		buf_free(buf);
 		buf = buf_new(4096);
+	}
+	if(read == -1) {
+		return -1;
 	}
 	return cur_pos;
 }

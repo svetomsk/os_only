@@ -13,10 +13,11 @@ struct execargs_t {
 	char ** args;
 };
 
-struct execargs_t *execargs_new(size_t , char * , char *  []);
+struct execargs_t *execargs_new(size_t , char * , char **);
 void execargs_free(struct execargs_t* v);
 int exec(struct execargs_t* args);
-int runpiped(struct execargs_t** programs, size_t n);
+int runpiped(struct execargs_t* programs[], size_t n);
+void stop_process();
 
 void test();
 

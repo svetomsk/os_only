@@ -9,3 +9,4 @@ revwords
 out
 filter
 tester.c
+*.un~

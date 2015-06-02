@@ -1,6 +1,6 @@
 #include "libhelpers.h"
 
-struct execargs_t* execargs_new(size_t size, char * name, char * args []) {
+struct execargs_t* execargs_new(size_t size, char * name, char ** args) {
 	struct execargs_t* cur = malloc(sizeof(struct execargs_t*));
 	cur->argv = size;
 	cur->prog_name = name;
@@ -25,6 +25,7 @@ int exec(struct execargs_t* args) {
     if(pid == 0) {
     	// child process
 		check(execvp(args->prog_name, args->args), "exec failed");
+		exit(0);
     }
     return pid;
 }
@@ -33,7 +34,6 @@ static int * children;
 static int count;
 static int stdin_fd;
 static int stdout_fd;
-static struct sigaction old;
 
 void stop_process() {
 	for(int i = 0; i < count; i++) {
@@ -44,16 +44,10 @@ void stop_process() {
 		}
 	}
 	// restore old values of STDIN and STDOUT
-	check(dup2(stdin_fd, STDIN_FILENO), "dup2 failed");
-	check(dup2(stdout_fd, STDOUT_FILENO), "dup2 failed");
-	// restore old sigaction
-	check(sigaction(SIGINT, &old, NULL), "sigaction failed");
-}
-
-static void sigint_handler(int signal) {
-	if(signal == SIGINT) {
-		stop_process();
-	}
+	dup2(stdin_fd, STDIN_FILENO);
+	dup2(stdout_fd, STDOUT_FILENO);
+	close(stdin_fd);
+	close(stdout_fd);
 }
 
 int runpiped(struct execargs_t** programs, size_t n) {
@@ -63,16 +57,11 @@ int runpiped(struct execargs_t** programs, size_t n) {
 	stdout_fd = dup(STDOUT_FILENO);
 	check(stdout_fd, "dup2 error");
 	int a[n];
+	for(int i = 0; i < n; i++) {
+		a[i] = -1;
+	}
 	children = a;
 	count = n;
-
-	//set handler for SIGINT
-	struct sigaction sa;
-	sa.sa_handler = sigint_handler;
-	sa.sa_flags = 0;
-	sigemptyset(&sa.sa_mask);
-	check(sigaction(SIGINT, &sa, &old), "sigaction failed");
-
 
 	for(int i = 0; i < n; i++) {
 		if(i != n - 1) { // if not last program 			
@@ -81,6 +70,7 @@ int runpiped(struct execargs_t** programs, size_t n) {
 			check(close(pipefd[1]), "close failed"); // close pipe end and leave only STDOUT_FILENO = pipefd[1]
 		} else { // last program don't have to write in pipe
 			check(dup2(stdout_fd, STDOUT_FILENO), "dup2 failed"); // restore STDOUT_FILENO
+			check(close(stdout_fd), "close failed");
 		}
 
 		children[i] = exec(programs[i]); // run program and save child pid
@@ -97,18 +87,24 @@ int runpiped(struct execargs_t** programs, size_t n) {
 		}
 	}
 
+
 	// wait for all children 
 	for(int i = 0; i < n; i++) {
 		wait(NULL);
 	}
 
+	dup2(stdin_fd, STDIN_FILENO);
+	dup2(stdout_fd, STDOUT_FILENO);	
 	// restore STDIN and STDOUT descriptors
-	check(dup2(stdin_fd, STDIN_FILENO), "dup2 error");
-	check(dup2(stdout_fd, STDOUT_FILENO), "dup2 error");
-
 	return 0;
 }
 
 void execargs_free(struct execargs_t* v) {
+	int index = 0;
+	while((v->args)[index] != NULL) {
+		free((v->args)[index]);
+		index++;
+	}
+	free(v->args);
 	free(v);
 }

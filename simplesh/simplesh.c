@@ -44,23 +44,43 @@ int parse_string(char * str, struct execargs_t* programs[]) {
 		programs[i] = execargs_new(1, mas[0], mas);
 		free(array[i]);
 	}
+	free(array);
 	return count;
+}
+
+static struct sigaction old;
+
+static void sigint_handler(int signal) {
+	if(signal == SIGINT) {
+		stop_process();
+	}
 }
 
 int main() {
 	char * s = "$";
-	char * test = "find /home/svetomsk/os_only/lib| grep a| head";
-	struct execargs_t* programs[strlen(test)/2 + 1];
-	int count = parse_string(test, programs);
-	printf("Count = %d\n", count);
-	int result = runpiped(programs, 3);
-	printf("Runpiped result = %d\n", result);
-	// while(1) {
-	// 	write(STDOUT_FILENO, s, 1);
-	// 	char buffer[4096];
-	// 	struct buf_t* buf = buf_new(4096);
-	// 	ssize_t read = buf_getline(STDIN_FILENO, buf, buffer);
-	// 	printf("Read: %s\n", buffer);
-	// }
+	//set handler for SIGINT
+	struct sigaction sa;
+	sa.sa_handler = sigint_handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaction(SIGINT, &sa, &old);
+
+	while(1) {
+		write(STDOUT_FILENO, s, 1);
+		char buffer[4096];
+		struct buf_t* buf = buf_new(4096);
+		ssize_t read = buf_getline(STDIN_FILENO, buf, buffer);	
+		if(read < 0) {
+			break;
+		}
+		struct execargs_t* programs[read/2 + 1];
+		int count = parse_string(buffer, programs);
+		int result = runpiped(programs, count);
+		for(int i = 0; i < count; i++) {
+			execargs_free(programs[i]);
+		}
+	}
+
+	sigaction(SIGINT, &old, 0);
 	return 0;
 }
