@@ -1,4 +1,4 @@
-all: clean lib/lib cat/cat revwords/revwords filter/filter bufcat/bufcat foreach/foreach
+all: clean lib/lib cat/cat revwords/revwords filter/filter bufcat/bufcat foreach/foreach simplesh/simplesh filesender/filesender
 
 lib/lib:
 	cd lib && make
@@ -21,6 +21,9 @@ foreach/foreach:
 simplesh/simplesh:
 	cd simplesh && make
 
+filesender/filesender:
+	cd filesender && make
+
 clean:
 	cd lib && make clean
 	cd cat && make clean
@@ -28,3 +31,5 @@ clean:
 	cd filter && make clean
 	cd bufcat && make clean
 	cd foreach && make clean
+	cd simplesh && make clean
+	cd filesender && make clean

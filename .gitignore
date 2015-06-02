@@ -6,7 +6,9 @@
 *.dll
 cat
 revwords
+bufcat
 out
 filter
+foreach
 tester.c
 *.un~

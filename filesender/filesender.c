@@ -11,10 +11,34 @@
 
 #define BUF_SIZE 4096
 
+void check(int result, char * message) {
+	if(result == -1) {
+		perror(message);
+	}
+}
+
+static int sfd;
+static struct sigaction old;
+
+static void sigint_handler(int signal) {
+	if(signal == SIGINT) {
+		check(close(sfd), "close");
+		check(sigaction(SIGINT, &old, NULL), "sigaction");
+		exit(0);
+	}
+}
+
 int main(int argc, char * argv[]) {
+	// set sigint handler in order to stop server by Ctrl+c correctly
+	struct sigaction sa;
+	sa.sa_handler = sigint_handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	check(sigaction(SIGINT, &sa, &old), "sigaction");
+
 	struct addrinfo hints; // data for getaddrinfo()
 	struct addrinfo *result, *rp; // results of getaddrinfo()
-	int sfd, s; // descriptors
+	int s; // descriptors
 
 	if(argc != 3) {
 		printf("Usage: %s port filename", argv[0]);
@@ -38,6 +62,7 @@ int main(int argc, char * argv[]) {
 	// look thougn all returned address structures
 	for(rp = result; rp != NULL; rp = rp->ai_next) {
 		sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+
 		if(sfd == -1) {
 			continue; // not suitable
 		}
@@ -46,47 +71,49 @@ int main(int argc, char * argv[]) {
 			break; // found
 		}
 
-		close(sfd); // close current file descriptor
+		close(sfd); // close current file descriptor because it is useless
 	}
 
-	if(rp == NULL) {
+	if(rp == NULL) { // nothing was found
 		printf("Binding failed");
 		exit(EXIT_FAILURE);
 	}
 
-	freeaddrinfo(result);
+	freeaddrinfo(result); // no needed more
+	check(listen(sfd, 1), "listen");
 
-	if(listen(sfd, 1) == -1) {
-		perror("listen");
-	}
 	while(1) {
 		struct sockaddr_in client;
 		socklen_t len = sizeof(client);
+		printf("accepting...");
 		int cfd = accept(sfd, (struct sockaddr*)&client, &len);
+		printf("accepted");
+		check(cfd, "accept");
+
 		pid_t pid = fork();
 
 		int file = open(argv[2], O_RDONLY);
+		check(file, "open");
+
 		if(pid == -1) {
 			perror("fork");
 		}
 		if(pid == 0) {
-			close(sfd);
+			check(close(sfd), "close");
 			struct buf_t* buf = buf_new(4096);
-			ssize_t read;
-			while((read = buf_fill(file, buf, 1)) > 0) {
-				buf_flush(cfd, buf, buf_size(buf));
+			ssize_t write;
+			while((write = buf_fill(file, buf, 1)) > 0) {
+				ssize_t res = buf_flush(cfd, buf, buf_size(buf));
+				check(res, "flush");
 			}
-			if(read == -1) {
-				perror("write");
-			}
-			close(file);
+			check(write, "write");
+			check(close(file), "close");
+
 			return 0;
 		} else {
-			close(cfd);
+			check(close(cfd), "close");
 		}	
 	}
-
-	close(sfd);
 
 	return 0;
 }
