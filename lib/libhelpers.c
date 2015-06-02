@@ -29,13 +29,50 @@ int exec(struct execargs_t* args) {
     return pid;
 }
 
+static int * children;
+static int count;
+static int stdin_fd;
+static int stdout_fd;
+static struct sigaction old;
+
+void stop_process() {
+	for(int i = 0; i < count; i++) {
+		if(children[i] != -1) { // if pid is valid
+			kill(children[i], SIGKILL); // send SIGKILL
+			waitpid(children[i], 0, 0);
+			children[i] = -1;
+		}
+	}
+	// restore old values of STDIN and STDOUT
+	check(dup2(stdin_fd, STDIN_FILENO), "dup2 failed");
+	check(dup2(stdout_fd, STDOUT_FILENO), "dup2 failed");
+	// restore old sigaction
+	check(sigaction(SIGINT, &old, NULL), "sigaction failed");
+}
+
+static void sigint_handler(int signal) {
+	if(signal == SIGINT) {
+		stop_process();
+	}
+}
+
 int runpiped(struct execargs_t** programs, size_t n) {
 	int pipefd[2];
-	int stdin_fd = dup(STDIN_FILENO);
+	stdin_fd = dup(STDIN_FILENO);
 	check(stdin_fd, "dup2 error");
-	int stdout_fd = dup(STDOUT_FILENO);
+	stdout_fd = dup(STDOUT_FILENO);
 	check(stdout_fd, "dup2 error");
-	int children[n];
+	int a[n];
+	children = a;
+	count = n;
+
+	//set handler for SIGINT
+	struct sigaction sa;
+	sa.sa_handler = sigint_handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	check(sigaction(SIGINT, &sa, &old), "sigaction failed");
+
 
 	for(int i = 0; i < n; i++) {
 		if(i != n - 1) { // if not last program 			

@@ -1,7 +1,7 @@
 all: clean lib
 
 lib:
-	gcc -std=c99 -fPIC -c helpers.h helpers.c bufio.h bufio.c libhelpers.h libhelpers.c
+	gcc -std=gnu99 -fPIC -Wall -c helpers.h helpers.c bufio.h bufio.c libhelpers.h libhelpers.c
 	gcc -shared -o libhelpers.so helpers.o libhelpers.o
 	gcc -shared -o libbufio.so bufio.o helpers.o
 clean:
@@ -15,4 +15,4 @@ clean:
 	$(RM) libhelpers.h.gch
 	$(RM) libhelpers.o
 test:
-	gcc -std=c99 -Wall tester.c libhelpers.h libhelpers.c
+	gcc -std=gnu99 -Wall tester.c libhelpers.h libhelpers.c

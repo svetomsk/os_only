@@ -57,7 +57,7 @@ int spawn(const char * file, char * const argv []) {
 	switch(pid = fork()) {
 		case 0: {
 			int result = execvp(file, argv);
-			return -1;
+			return result;
 		}
 		default: {
 			waitpid(pid, &exit_status, 0);

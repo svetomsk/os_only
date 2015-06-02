@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <signal.h>
 
 struct execargs_t {
 	size_t argv;
