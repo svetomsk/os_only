@@ -9,13 +9,12 @@
 #include <fcntl.h>
 #include <bufio.h>
 
+#define BUF_SIZE 4096
+
 int main(int argc, char * argv[]) {
 	struct addrinfo hints; // data for getaddrinfo()
 	struct addrinfo *result, *rp; // results of getaddrinfo()
 	int sfd, s; // descriptors
-	struct sockaddr_storage peer_addr;
-	socklen_t nred;
-	char buf[500];
 
 	if(argc != 3) {
 		printf("Usage: %s port filename", argv[0]);
@@ -61,18 +60,17 @@ int main(int argc, char * argv[]) {
 		perror("listen");
 	}
 	while(1) {
-		printf("Inside");
 		struct sockaddr_in client;
 		socklen_t len = sizeof(client);
-		printf("Accepting\n");
 		int cfd = accept(sfd, (struct sockaddr*)&client, &len);
-		printf("Accepted\n");
 		pid_t pid = fork();
+
+		int file = open(argv[2], O_RDONLY);
 		if(pid == -1) {
 			perror("fork");
 		}
 		if(pid == 0) {
-			int file = open(argv[2], O_RDONLY);
+			close(sfd);
 			struct buf_t* buf = buf_new(4096);
 			ssize_t read;
 			while((read = buf_fill(file, buf, 1)) > 0) {
@@ -82,11 +80,9 @@ int main(int argc, char * argv[]) {
 				perror("write");
 			}
 			close(file);
-			close(cfd);
-			printf("Sent\n");
 			return 0;
 		} else {
-			printf("In parent");
+			close(cfd);
 		}	
 	}
 
