@@ -5,6 +5,9 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <bufio.h>
 
 int main(int argc, char * argv[]) {
 	struct addrinfo hints; // data for getaddrinfo()
@@ -57,13 +60,37 @@ int main(int argc, char * argv[]) {
 	if(listen(sfd, 1) == -1) {
 		perror("listen");
 	}
-	struct sockaddr_in client;
-	socklen_t len = sizeof(client);
-	int cfd = accept(sfd, (struct sockaddr*)&client, &len);
-	char * hello = "hello\n";
-	if(write(cfd, hello, sizeof(hello)) == -1) {
-		perror("write");
+	while(1) {
+		printf("Inside");
+		struct sockaddr_in client;
+		socklen_t len = sizeof(client);
+		printf("Accepting\n");
+		int cfd = accept(sfd, (struct sockaddr*)&client, &len);
+		printf("Accepted\n");
+		pid_t pid = fork();
+		if(pid == -1) {
+			perror("fork");
+		}
+		if(pid == 0) {
+			int file = open(argv[2], O_RDONLY);
+			struct buf_t* buf = buf_new(4096);
+			ssize_t read;
+			while((read = buf_fill(file, buf, 1)) > 0) {
+				buf_flush(cfd, buf, buf_size(buf));
+			}
+			if(read == -1) {
+				perror("write");
+			}
+			close(file);
+			close(cfd);
+			printf("Sent\n");
+			return 0;
+		} else {
+			printf("In parent");
+		}	
 	}
+
+	close(sfd);
 
 	return 0;
 }
