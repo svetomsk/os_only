@@ -15,23 +15,22 @@ void check(int result, char * message) {
 	}
 }
 
-// perform exec in child process
-// and return pid of process to 
-// be able to control it
+/* Perform exec in child process
+ and return pid of process to 
+ be able to control it
+*/
 int exec(struct execargs_t* args) {
     pid_t pid = fork();
 
     if(pid == 0) {
     	// child process
-		int result = execvp(args->prog_name, args->args);
-		check(result, "exec failed");
+		check(execvp(args->prog_name, args->args), "exec failed");
     }
     return pid;
 }
 
 int runpiped(struct execargs_t** programs, size_t n) {
 	int pipefd[2];
-	int result;
 	int stdin_fd = dup(STDIN_FILENO);
 	check(stdin_fd, "dup2 error");
 	int stdout_fd = dup(STDOUT_FILENO);
@@ -39,16 +38,12 @@ int runpiped(struct execargs_t** programs, size_t n) {
 	int children[n];
 
 	for(int i = 0; i < n; i++) {
-		if(i != n - 1) { // if not last program 
-			result = pipe(pipefd); // create pipe
-			check(result, "pipe failed");
-			result = dup2(pipefd[1], STDOUT_FILENO); // redirect output stream to pipe write end
-			check(result, "dup2 failed");
-			result = close(pipefd[1]); // close pipe end and leave only STDOUT_FILENO = pipefd[1]
-			check(result, "close failed");
+		if(i != n - 1) { // if not last program 			
+			check(pipe(pipefd), "pipe failed"); // create pipe
+			check(dup2(pipefd[1], STDOUT_FILENO), "dup2 failed"); // redirect output stream to pipe write end
+			check(close(pipefd[1]), "close failed"); // close pipe end and leave only STDOUT_FILENO = pipefd[1]
 		} else { // last program don't have to write in pipe
-			result = dup2(stdout_fd, STDOUT_FILENO); // restore STDOUT_FILENO
-			check(result, "dup2 failed");
+			check(dup2(stdout_fd, STDOUT_FILENO), "dup2 failed"); // restore STDOUT_FILENO
 		}
 
 		children[i] = exec(programs[i]); // run program and save child pid
@@ -58,23 +53,22 @@ int runpiped(struct execargs_t** programs, size_t n) {
 		}
 
 		if(i != n - 1) { // if not last program
-			result = dup2(pipefd[0], STDIN_FILENO); // redirect intput stream to pipe read end
-			check(result, "dup2 failed");
-			result = close(pipefd[0]); // close pipe end and leave only STDIN_FILE = pipefd[0]
-			check(result, "close failed");
+			check(dup2(pipefd[0], STDIN_FILENO), "dup2 failed"); // redirect intput stream to pipe read end
+			check(close(pipefd[0]), "close failed"); // close pipe end and leave only STDIN_FILE = pipefd[0]
 		} else { // don't have to redirect STDIN_FILENO, but should close it
-			result = close(STDIN_FILENO);
-			check(result, "close failed");
+			check(close(STDIN_FILENO), "close failed");
 		}
 	}
 
-
+	// wait for all children 
 	for(int i = 0; i < n; i++) {
 		wait(NULL);
 	}
 
-	dup2(stdin_fd, STDIN_FILENO);
-	dup2(stdout_fd, STDOUT_FILENO);
+	// restore STDIN and STDOUT descriptors
+	check(dup2(stdin_fd, STDIN_FILENO), "dup2 error");
+	check(dup2(stdout_fd, STDOUT_FILENO), "dup2 error");
+
 	return 0;
 }
 

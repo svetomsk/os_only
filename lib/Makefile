@@ -15,4 +15,4 @@ clean:
 	$(RM) libhelpers.h.gch
 	$(RM) libhelpers.o
 test:
-	gcc -std=c99 tester.c libhelpers.h libhelpers.c
+	gcc -std=c99 -Wall tester.c libhelpers.h libhelpers.c
