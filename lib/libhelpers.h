@@ -17,4 +17,6 @@ void execargs_free(struct execargs_t* v);
 int exec(struct execargs_t* args);
 int runpiped(struct execargs_t** programs, size_t n);
 
+void test();
+
 #endif // LIBHELPERS_
