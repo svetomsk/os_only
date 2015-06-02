@@ -25,22 +25,22 @@ size_t buf_size(struct buf_t * b) {
 
 ssize_t buf_fill(fd_t fd, struct buf_t *buf, size_t required) {
 	ssize_t cur_read;
-	size_t total_result = 0;
-	while((cur_read = read(fd, buf->buf + total_result, buf->capacity)) > 0 && total_result < required) {
-		total_result += cur_read;
+
+	while((cur_read = read(fd, buf->buf + buf->size, buf->capacity - buf->size)) > 0 && buf->size < required) {
+		buf->size += cur_read;
 	}
 
 	if(cur_read == -1) {
 		return -1;
 	}
-	buf->size = total_result;
-	return total_result;
+
+	return buf->size;
 }
 
 ssize_t buf_flush(fd_t fd, struct buf_t *buf, size_t required) {
 	ssize_t cur_written;
 	size_t total_result = 0;
-	while((cur_written = write(fd, buf->buf, buf->size)) > 0) {
+	while((cur_written = write(fd, buf->buf + total_result, buf->size)) > 0 && buf->size > 0 && total_result < required) {
 		total_result += cur_written;
 		buf->size -= cur_written;
 	}

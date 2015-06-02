@@ -103,7 +103,7 @@ int main(int argc, char * argv[]) {
 			struct buf_t* buf = buf_new(4096);
 			ssize_t write;
 			while((write = buf_fill(file, buf, 1)) > 0) {
-				ssize_t res = buf_flush(cfd, buf, buf_size(buf));
+				ssize_t res = buf_flush(cfd, buf, write);
 				check(res, "flush");
 			}
 			check(write, "write");
