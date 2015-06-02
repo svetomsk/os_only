@@ -18,6 +18,9 @@ bufcat/bufcat:
 foreach/foreach:
 	cd foreach && make
 
+simplesh/simplesh:
+	cd simplesh && make
+
 clean:
 	cd lib && make clean
 	cd cat && make clean
