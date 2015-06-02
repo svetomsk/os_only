@@ -52,7 +52,9 @@ static struct sigaction old;
 
 static void sigint_handler(int signal) {
 	if(signal == SIGINT) {
-		stop_process();
+		char * s = "\n";
+		write(STDOUT_FILENO, s, strlen(s));
+		// do nothing
 	}
 }
 
@@ -67,10 +69,15 @@ int main() {
 
 	while(1) {
 		write(STDOUT_FILENO, s, 1);
-		char buffer[4096];
+		char * buffer = malloc(4096 * sizeof(char));
 		struct buf_t* buf = buf_new(4096);
-		ssize_t read = buf_getline(STDIN_FILENO, buf, buffer);	
-		if(read < 0) {
+		ssize_t read = buf_getline(STDIN_FILENO, buf, buffer);
+		if(read == -1) {
+			free(buffer);
+			buf_free(buf);
+			continue;
+		}
+		if(read == 0) {
 			break;
 		}
 		struct execargs_t* programs[read/2 + 1];
@@ -79,6 +86,8 @@ int main() {
 		for(int i = 0; i < count; i++) {
 			execargs_free(programs[i]);
 		}
+		free(buffer);
+		buf_free(buf);
 	}
 
 	sigaction(SIGINT, &old, 0);

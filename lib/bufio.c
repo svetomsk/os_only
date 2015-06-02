@@ -31,7 +31,6 @@ ssize_t buf_fill(fd_t fd, struct buf_t *buf, size_t required) {
 	}
 
 	if(cur_read == -1) {
-		printf("Error happened2: %i\n", errno);
 		return -1;
 	}
 	buf->size = total_result;
@@ -47,7 +46,6 @@ ssize_t buf_flush(fd_t fd, struct buf_t *buf, size_t required) {
 	}
 
 	if(cur_written == -1) {
-		printf("Error happened1: %i\n", errno);
 		return -1;
 	}
 

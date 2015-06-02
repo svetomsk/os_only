@@ -34,6 +34,13 @@ static int * children;
 static int count;
 static int stdin_fd;
 static int stdout_fd;
+static struct sigaction old;
+
+static void sigint_handler(int signal) {
+	if(signal == SIGINT) {
+		stop_process();
+	}
+}
 
 void stop_process() {
 	for(int i = 0; i < count; i++) {
@@ -48,6 +55,7 @@ void stop_process() {
 	dup2(stdout_fd, STDOUT_FILENO);
 	close(stdin_fd);
 	close(stdout_fd);
+	sigaction(SIGINT, &old, 0);
 }
 
 int runpiped(struct execargs_t** programs, size_t n) {
@@ -62,6 +70,13 @@ int runpiped(struct execargs_t** programs, size_t n) {
 	}
 	children = a;
 	count = n;
+
+	//set handler for SIGINT
+	struct sigaction sa;
+	sa.sa_handler = sigint_handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaction(SIGINT, &sa, &old);
 
 	for(int i = 0; i < n; i++) {
 		if(i != n - 1) { // if not last program 			
@@ -96,6 +111,7 @@ int runpiped(struct execargs_t** programs, size_t n) {
 	dup2(stdin_fd, STDIN_FILENO);
 	dup2(stdout_fd, STDOUT_FILENO);	
 	// restore STDIN and STDOUT descriptors
+	sigaction(SIGINT, &old, 0);
 	return 0;
 }
 
