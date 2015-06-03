@@ -4,7 +4,6 @@
 #include <string.h>
 
 int split(char separator, const char* sequance, size_t length, char ** array) {
-	int cur = 0;
 	int index = 0;
 	int count = 0;
 	char buffer[length];
@@ -54,7 +53,6 @@ static void sigint_handler(int signal) {
 	if(signal == SIGINT) {
 		char * s = "\n";
 		write(STDOUT_FILENO, s, strlen(s));
-		// do nothing
 	}
 }
 
@@ -82,7 +80,7 @@ int main() {
 		}
 		struct execargs_t* programs[read/2 + 1];
 		int count = parse_string(buffer, programs);
-		int result = runpiped(programs, count);
+		runpiped(programs, count);
 		for(int i = 0; i < count; i++) {
 			execargs_free(programs[i]);
 		}

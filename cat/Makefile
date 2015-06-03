@@ -1,7 +1,10 @@
-all: clean cat
+all: clean lib cat
+
+lib:
+	cd ../lib && make
 
 cat:
-	gcc -std=c99 -I../lib -Wl,-rpath=../lib -L../lib cat.c -o cat -lhelpers
+	gcc -std=c99 -Wall -I../lib -Wl,-rpath=../lib -L../lib cat.c -o cat -lhelpers
 
 clean:
 	rm -f cat.o

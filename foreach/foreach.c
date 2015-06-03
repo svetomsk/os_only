@@ -12,7 +12,7 @@ int main(int argc, char ** argv) {
 	int cur_read;
 	char buffer[4096];
 	struct buf_t* buf = buf_new(4096);
-	while(cur_read = buf_getline(STDIN_FILENO, buf, buffer)) {
+	while((cur_read = buf_getline(STDIN_FILENO, buf, buffer))) {
 		if(cur_read % 2 == 0) {
 			re_argv[argc] = buffer;
 			re_argv[argc + 1] = NULL;

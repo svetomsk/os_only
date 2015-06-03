@@ -1,7 +1,10 @@
-all: clean bufcat
+all: clean lib bufcat
+
+lib:
+	cd ../lib && make
 
 bufcat:
-	gcc -std=c99 -I../lib -Wl,-rpath=../lib -L../lib bufcat.c -o bufcat -lbufio
+	gcc -std=c99 -Wall -I../lib -Wl,-rpath=../lib -L../lib bufcat.c -o bufcat -lbufio
 
 clean:
 	rm -f bufcat.o
