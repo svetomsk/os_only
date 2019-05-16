@@ -21,11 +21,12 @@ ssize_t read_until(int fd, void *buf, size_t count, char delimiter) {
 
 	while(count > 0 && (cur_read = read(fd, buf + result, 1)) > 0) {
 		char c = ((char *) buf)[result];
+		
+		result++;
+		count--;
 		if(c == delimiter) {
 			break;
 		}
-		result++;
-		count--;
 	}
 
 	if(cur_read == -1) {
