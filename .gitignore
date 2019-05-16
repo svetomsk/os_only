@@ -9,3 +9,9 @@ out
 filter
 lenwords
 revwords
+bufcat
+out
+filter
+foreach
+tester.c
+

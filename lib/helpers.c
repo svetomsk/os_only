@@ -8,7 +8,6 @@ ssize_t read_(int fd, void *buf, size_t count) {
 		result += cur_read;
 		count -= cur_read;
 	}
-
 	if(cur_read == -1) {
 		return -1;
 	}
@@ -51,4 +50,22 @@ ssize_t write_(int fd, void *buf, size_t count) {
 	}
 
 	return result;
+}
+
+int spawn(const char * file, char * const argv []) {
+    int pid;
+	int exit_status;
+	switch(pid = fork()) {
+		case 0: {
+			int result = execvp(file, argv);
+			return result;
+		}
+		default: {
+			waitpid(pid, &exit_status, 0);
+			if(WIFEXITED(exit_status)) {
+				return WEXITSTATUS(exit_status);
+			} else
+				return -1;
+		}
+	}
 }
